@@ -1,25 +1,42 @@
 import React from "react";
-import axios from 'axios'
+import youtube from '../api/youtube'
 import SearchBar from "./SearchBar"
-export default class App extends React.Component {
-  state={images:[]};
-  async handleSubmit(term){
-    let response=await axios.get("https://api.unsplash.com/search/photos",{
-      params:{query : term},
-      headers:{
-        Authorization: "Client-ID pkU1oiB38nbIjBJ9dSxkREozQxUy13ltnwSmMoUajFw"
-      }
-    });
-    this.setState({images:response.data.results});
-    console.log(this);//the result is parentMethod : {async handleSubmit,guessIamI="guessIamI"}
-  }
+import VideosList from "./VideosList"
+import VideoDetail from "./VideoDetail";
 
+export default class App extends React.Component {
+  state={videos:[],selectedVideo:null};
+  componentDidMount(){
+      this.handleSubmit("buildings");
+  }
+  async handleSubmit(term){
+    console.log(term);
+    let response=await youtube.get("/search",{
+      params:{q : term},
+    });console.log(response);
+    // response.catch((e)=>{
+    //   console.log("error");
+    // });
+    this.setState({videos:response.data.items,selectedVideo:response.data.items[0]});
+    //console.log(this,"ali1");//the result is parentMethod : {async handleSubmit,guessIamI="guessIamI"}
+  }
+  onVideoSelected(video){
+    this.setState({selectedVideo:video});
+  }
   render(){
     return (
       <div className="ui container" style={{ marginTop:"10px" }}>
-        <SearchBar parentMethod={this.handleSubmit.bind(this)}/>
-        catch : {this.state.images.length }
-      </div>
+        <SearchBar parentMethod={this.handleSubmit.bind(this)} guessIamI="guessIamI"/>               {/* <SearchBar parentMethod={()=>this.handleSubmit()}/> */}
+        <div className="ui grid">
+          <div className="ui row">
+            <div className="eleven wide column">
+              <VideoDetail video={this.state.selectedVideo}/></div>
+            </div>
+            <div className="five wide column">
+              <VideosList videos={this.state.videos} onVideoSelected={this.onVideoSelected.bind(this)}/>
+            </div>
+          </div>
+        </div>
     );
   }
 }

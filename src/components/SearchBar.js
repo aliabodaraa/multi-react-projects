@@ -9,7 +9,6 @@ export default class SearchBar extends React.Component {
   }
   onSubmit(e){
     e.preventDefault();
-    this.ali="ali"
     this.props.parentMethod(this.state.term);
   }
 //   componentDidMount(){
