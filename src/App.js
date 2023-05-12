@@ -1,59 +1,64 @@
-import React from 'react';
-import SearchBar from './components/SearchBar';
-import youtube from './apis/youtube';
-import VideoList from './components/VideoList';
-import VideoDetail from './components/VideoDetail';
+import React, { useState } from 'react';
+import Accordion from './components/Accordion';
+import Search from './components/Search';
+import Dropdown from './components/Dropdown';
+import Translate from './components/Translate';
+import Route from './components/Route';
+import Header from './components/Header';
 
-const KEY = 'AIzaSyCDXYu6WMsRtscaRxpwQldxIzxNVnFUA0Y';
+const items = [
+  {
+    title: 'What is React?',
+    content: 'React is a front end javascript framework',
+  },
+  {
+    title: 'Why use React?',
+    content: 'React is a favorite JS library among engineers',
+  },
+  {
+    title: 'How do you use React?',
+    content: 'You use React by creating components',
+  },
+];
 
-class App extends React.Component {
-  state = { videos: [], selectedVideo: null };
+const options = [
+  {
+    label: 'The Color Red',
+    value: 'red',
+  },
+  {
+    label: 'The Color Green',
+    value: 'green',
+  },
+  {
+    label: 'A Shade of Blue',
+    value: 'blue',
+  },
+];
 
-  componentDidMount() {
-    this.onTermSubmit('buildings');
-  }
+export default () => {
+  const [selected, setSelected] = useState(options[0]);
 
-  onTermSubmit = async (term) => {
-    const response = await youtube.get('/search', {
-      params: {
-        q: term,
-        part: 'snippet',
-        maxResults: 5,
-        type: 'video',
-        key: KEY,
-      },
-    });
-
-    this.setState({
-      videos: response.data.items,
-      selectedVideo: response.data.items[0],
-    });
-  };
-
-  onVideoSelect = (video) => {
-    this.setState({ selectedVideo: video });
-  };
-
-  render() {
-    return (
-      <div className="ui container">
-        <SearchBar onFormSubmit={this.onTermSubmit} />
-        <div className="ui grid">
-          <div className="ui row">
-            <div className="eleven wide column">
-              <VideoDetail video={this.state.selectedVideo} />
-            </div>
-            <div className="five wide column">
-              <VideoList
-                onVideoSelect={this.onVideoSelect}
-                videos={this.state.videos}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-}
-
-export default App;
+  return (
+    <div>
+      <Header />
+      <Route path="/">
+        <Accordion items={items} />
+      </Route>
+      <Route path="/list">
+        <Search />
+      </Route>
+      <Route path="/dropdown">
+        <Dropdown
+          label="Select a color"
+          options={options}
+          selected={selected}
+          onSelectedChange={setSelected}
+        />
+      </Route>
+      <Route path="/translate">
+        <Translate />
+      </Route>
+    </div>
+  );
+};
