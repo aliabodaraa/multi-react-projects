@@ -1,64 +1,29 @@
-import React, { useState } from 'react';
-import Accordion from './components/Accordion';
-import Search from './components/Search';
-import Dropdown from './components/Dropdown';
-import Translate from './components/Translate';
-import Route from './components/Route';
-import Header from './components/Header';
+import React, { useState, useEffect } from 'react';
+import SearchBar from './components/SearchBar';
+import VideoList from './components/VideoList';
+import VideoDetail from './components/VideoDetail';
+import useVideos from './hooks/useVideos';
 
-const items = [
-  {
-    title: 'What is React?',
-    content: 'React is a front end javascript framework',
-  },
-  {
-    title: 'Why use React?',
-    content: 'React is a favorite JS library among engineers',
-  },
-  {
-    title: 'How do you use React?',
-    content: 'You use React by creating components',
-  },
-];
+const App = () => {
+    const [selectedVideo, setSelectedVideo] = useState(null);
+    const [videos, search] = useVideos('buildings');
 
-const options = [
-  {
-    label: 'The Color Red',
-    value: 'red',
-  },
-  {
-    label: 'The Color Green',
-    value: 'green',
-  },
-  {
-    label: 'A Shade of Blue',
-    value: 'blue',
-  },
-];
+    useEffect(() => {
+        setSelectedVideo(videos[0]);
+    }, [videos]);
 
-export default () => {
-  const [selected, setSelected] = useState(options[0]);
-
-  return (
-    <div>
-      <Header />
-      <Route path="/">
-        <Accordion items={items} />
-      </Route>
-      <Route path="/list">
-        <Search />
-      </Route>
-      <Route path="/dropdown">
-        <Dropdown
-          label="Select a color"
-          options={options}
-          selected={selected}
-          onSelectedChange={setSelected}
-        />
-      </Route>
-      <Route path="/translate">
-        <Translate />
-      </Route>
-    </div>
-  );
+    return ( <div className = "ui container" >
+        <SearchBar onFormSubmit = { search }/> <div className = "ui grid" >
+        <div className = "ui row" ><div className = "eleven wide column" >
+        <VideoDetail video = { selectedVideo }/> </div> 
+        <div className = "five wide column" >
+        <VideoList onVideoSelect = { setSelectedVideo }
+        videos = { videos }/>
+        </div>
+        </div>
+         </div> 
+         </div>
+    );
 };
+
+export default App;
