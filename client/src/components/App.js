@@ -13,11 +13,11 @@ const App = () => {
       <BrowserRouter>
           <Header />
           <Routes>
-                <Route path="/" exact element={<StreamList/>}/>
-                <Route path="/streams/new" exact element={<StreamCreate/>} />
-                <Route path="/streams/edit" exact element={<StreamEdit/>} />
-                <Route path="/streams/delete" exact element={<StreamDelete/>} />
-                <Route path="/streams/show" exact element={<StreamShow/>} />
+            <Route path="/" exact element={<StreamList/>} />
+            <Route path="/streams/new" exact element={<StreamCreate/>} />
+            <Route path="/streams/edit" exact element={<StreamEdit/>} />
+            <Route path="/streams/delete" exact element={<StreamDelete/>} />
+            <Route path="/streams/show" exact element={<StreamShow/>} />
           </Routes>
       </BrowserRouter>
     </div>
