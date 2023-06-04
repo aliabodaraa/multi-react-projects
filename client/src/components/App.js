@@ -1,25 +1,32 @@
 import React from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Router,Route, Routes, unstable_HistoryRouter as CustomHistoryRouter } from 'react-router-dom';
 import StreamCreate from './streams/StreamCreate';
 import StreamEdit from './streams/StreamEdit';
 import StreamDelete from './streams/StreamDelete';
 import StreamList from './streams/StreamList';
 import StreamShow from './streams/StreamShow';
 import Header from './Header';
-
+import history from '../history';
+import { useParams } from 'react-router-dom';
 const App = () => {
+  const StreamEditWrapper = () => {
+    const { id } = useParams();
+    return <StreamEdit id={id} />;
+  };
   return (
     <div className="ui container">
-      <BrowserRouter>
+      {/* <BrowserRouter> */}
+      <CustomHistoryRouter history={history}>
           <Header />
           <Routes>
-            <Route path="/" exact element={<StreamList/>} />
-            <Route path="/streams/new" exact element={<StreamCreate/>} />
-            <Route path="/streams/edit" exact element={<StreamEdit/>} />
-            <Route path="/streams/delete" exact element={<StreamDelete/>} />
-            <Route path="/streams/show" exact element={<StreamShow/>} />
-          </Routes>
-      </BrowserRouter>
+            <Route path="/" exact element={<StreamList history={history}/>} />
+            <Route path="/streams/new" exact element={<StreamCreate history={history}/>} />
+            <Route path="/streams/edit/:id" exact element={<StreamEditWrapper/>}/>
+            <Route path="/streams/delete" exact element={<StreamDelete history={history}/>} />
+            <Route path="/streams/show" exact element={<StreamShow history={history}/>} />
+            </Routes>
+        </CustomHistoryRouter>
+      {/* </BrowserRouter> */}
     </div>
   );
 };
