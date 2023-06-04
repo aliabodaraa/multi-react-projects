@@ -1,12 +1,18 @@
 import React from 'react';
 import Modal from '../Modal';
 import history from '../../history';
-
-const StreamDelete = () => {
+import { useEffect } from 'react';
+import { deleteStream } from "../../actions";
+import { connect } from 'react-redux';
+const StreamDelete = (props) => {
+  
+  let deleteCurrentStream=()=>{
+    props.deleteStream(props.id);
+  };
   const actions = (
     <React.Fragment>
-      <button className="ui button negative">Delete</button>
-      <button className="ui button">Cancel</button>
+      <button className="ui button negative" onClick={deleteCurrentStream}>Delete</button>
+      <button className="ui button" onClick={()=>history.push("/")}>Cancel</button>
     </React.Fragment>
   );
 
@@ -23,4 +29,4 @@ const StreamDelete = () => {
   );
 };
 
-export default StreamDelete;
+export default connect(null,{deleteStream})(StreamDelete);
