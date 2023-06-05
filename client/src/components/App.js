@@ -17,6 +17,10 @@ const App = () => {
     const { id } = useParams();
     return <StreamDelete id={id} />;
   };
+  const StreamShowWrapper = () => {
+    const { id } = useParams();
+    return <StreamShow id={id} />;
+  };
   return (
     <div className="ui container">
       {/* <BrowserRouter> */}
@@ -27,8 +31,8 @@ const App = () => {
             <Route path="/streams/new" exact element={<StreamCreate history={history}/>} />
             <Route path="/streams/edit/:id" exact element={<StreamEditWrapper/>}/>
             <Route path="/streams/delete/:id" exact element={<StreamDeleteWrapper/>} />
-            <Route path="/streams/:id" exact element={<StreamShow history={history}/>} />
-            </Routes>
+            <Route path="/streams/:id" exact element={<StreamShowWrapper/>} />
+          </Routes>
         </CustomHistoryRouter>
       {/* </BrowserRouter> */}
     </div>
