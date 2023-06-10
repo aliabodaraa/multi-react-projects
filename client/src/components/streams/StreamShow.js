@@ -1,56 +1,41 @@
-import React, { useEffect, useRef, useMemo,useState, useCallback } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { connect } from 'react-redux';
 import flv from 'flv.js';
 import { fetchStream } from '../../actions';
 
 const StreamShow = (props) => {
-  const flvInstance=React.useRef();
-  const [enterOne, setEnterOne] = useState(false);
-  const videoRef=useRef(null);
-  const [videoStateRef]=React.useState(videoRef);//state variable reference to ref whenever ref change the state will change also
+  const videoRef=useRef();
   let {id,stream}=props;
-  let createFlvInstance=async()=>{
-      console.log("[[[createFlvInstance[[");
+  const playerPromise=useRef();
+  useEffect(()=>{
+    console.log(playerPromise)
+      if(videoRef.current && playerPromise.current){
+        playerPromise.current.then((player)=>{//_mediaElement
+          player.attachMediaElement(videoRef.current);
+          player.unload();
+          player.load();
+        });
+      }
+  });
+  useEffect(()=>{
+    playerPromise.current=(async()=>{//we use Memoized to access the playerPromise when unMount this component
+      console.log(10);
       let ply=await flv.createPlayer({
           type: 'flv',
           url: `http://localhost:8000/live/${id}.flv`
       });
-      flvInstance.current=ply;
-    }
-  const getFlvInstance=useCallback(createFlvInstance,[id]);
-  let loadFlvInstance=async()=>{
-    console.log("loadFlvInstance");
-    console.log(videoStateRef.current,videoRef.current)
-    await getFlvInstance();//or you can call `createFlvInstance` still waiting for make the flvInstance
-    flvInstance.current.detachMediaElement(videoRef.current);
-    flvInstance.current.attachMediaElement(videoRef.current);
-    flvInstance.current.unload();
-    flvInstance.current.load();
-  }
-const player=useCallback(loadFlvInstance,[videoRef.current]);//whenever you come to this page look into this callback if it match the previous one then avoid to recall it get the previous one, if doesn't match recall it
-  useEffect(()=>{
-    props.fetchStream(id);
-    return ()=>{
-        if(flvInstance.current){
-          flvInstance.current.destroy();
-          console.log("destroy");
-        }
-    };
- },[]);
-  useEffect(() => {
-    if (videoRef.current && !enterOne) {//skip enter the if for first render
-      setEnterOne(true);
-      console.log("enter",videoRef.current);
-      player();//or
-      // (async()=>{await getFlvInstance();
-      //   console.log(flvInstance);
-      //   await flvInstance.current.attachMediaElement(videoRef.current);
-      //   flvInstance.current.unload();
-      //   flvInstance.current.load();})();//or you can call `createFlvInstance` still waiting for make the flvInstance
-    }
-  });
+      return ply;})();//we use memo to avoid recreate plyer in unnecessary rerenders
+     props.fetchStream(id);
+     return ()=>{
+      if(playerPromise.current)
+       playerPromise.current.then((player)=>{
+        console.log("destroy")
+       player.destroy();
+      });
+     };
+  },[]);
   if(stream){
-    return(
+    return( 
       <div>
         <video ref={videoRef} style={{ width: '100%' }} controls />
         <h1>{stream.title}</h1>
@@ -62,3 +47,70 @@ const mapStateToProps = (state, ownProps) => {
   return { stream: state.streams[ownProps.id] };
 };
 export default connect(mapStateToProps,{fetchStream})(StreamShow);
+
+//With Class Components
+//  import React from 'react';
+//  import flv from 'flv.js';
+//  import { connect } from 'react-redux';
+//  import { fetchStream } from '../../actions';
+
+//  class StreamShow extends React.Component {
+//    constructor(props) {
+//      super(props);
+
+//      this.videoRef = React.createRef();
+//    }
+
+//    componentDidMount() {
+//      const { id } = this.props.fetchStream(this.props.id);;
+
+//      this.props.fetchStream(id);
+//      this.buildPlayer();
+//    }
+
+//    componentDidUpdate() {
+//      this.buildPlayer();
+//    }
+//    componentWillUnmount(){
+//      this.player.destroy();
+//    }
+
+//    buildPlayer() {
+//      if (this.player || !this.props.stream) {
+//        return;
+//      }
+
+//      const { id } = this.props;
+//      this.player = flv.createPlayer({
+//        type: 'flv',
+//        url: `http://localhost:8000/live/${id}.flv`
+//      });
+//      this.player.attachMediaElement(this.videoRef.current);
+//      this.player.load();
+//    }
+
+//    render() {
+//      if (!this.props.stream) {
+//        return <div>Loading...</div>;
+//      }
+
+//      const { title, description } = this.props.stream;
+
+//      return (
+//        <div>
+//          <video ref={this.videoRef} style={{ width: '100%' }} controls />
+//          <h1>{title}</h1>
+//          <h5>{description}</h5>
+//        </div>
+//      );
+//    }
+//  }
+
+//  const mapStateToProps = (state, ownProps) => {
+//    return { stream: state.streams[ownProps.id] };
+//  };
+
+//  export default connect(
+//    mapStateToProps,
+//    { fetchStream }
+//  )(StreamShow);
