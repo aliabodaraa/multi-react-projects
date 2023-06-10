@@ -3,20 +3,31 @@ import { connect } from 'react-redux';
 import { signIn, signOut } from '../actions';
 
 class GoogleAuth extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state={connectivity:true};
+  }
   componentDidMount() {
-    window.gapi.load('client:auth2', () => {
-      window.gapi.client
-        .init({
-          clientId:
-            '797401886567-9cumct9mrt3v2va409rasa7fa6fq02hh.apps.googleusercontent.com',
-          scope: 'email'
-        })
-        .then(() => {
-          this.auth = window.gapi.auth2.getAuthInstance();
-
-          this.onAuthChange(this.auth.isSignedIn.get());
-          this.auth.isSignedIn.listen(this.onAuthChange);
-        });
+    //if(window.gapi)
+    let pro=(async()=>{
+      window.gapi.load('client:auth2', () => {
+        window.gapi.client
+          .init({
+            clientId:
+              '797401886567-9cumct9mrt3v2va409rasa7fa6fq02hh.apps.googleusercontent.com',
+            scope: 'email'
+          })
+          .then(() => {
+            this.auth = window.gapi.auth2.getAuthInstance();
+  
+            this.onAuthChange(this.auth.isSignedIn.get());
+            this.auth.isSignedIn.listen(this.onAuthChange);
+          });
+      })
+    });
+    pro().catch((notworkError)=>{
+      this.setState({...this.state,connectivity:false});
+      console.log(this.state,"---NETWORK ERROR CONNECTION---")
     });
   }
 
@@ -37,8 +48,12 @@ class GoogleAuth extends React.Component {
   };
 
   renderAuthButton() {
+
     if (this.props.isSignedIn === null) {
-      return null;
+      if(!this.state.connectivity)
+        return <div className="ui red bg">---NETWORK ERROR CONNECTION---</div>;
+      else
+        return null;
     } else if (this.props.isSignedIn) {
       return (
         <button onClick={this.onSignOutClick} className="ui red google button">
